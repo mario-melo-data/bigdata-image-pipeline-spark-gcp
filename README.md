@@ -40,13 +40,13 @@ Caching is the dominant lever: materialising the RDD in memory removes redundant
 
 ## Tech stack
 
-Python, PySpark (RDD API), TensorFlow 2.4.0, Google Cloud Dataproc, Google Cloud Storage, gcloud CLI, NumPy, Matplotlib.
+Python, PySpark (RDD API), TensorFlow 2.4.0, Google Cloud Dataproc, Google Cloud Storage, gcloud CLI, Google Colab, NumPy, Matplotlib.
 
 ## Files
 
 * `bigdata-image-pipeline-spark-gcp.ipynb` runs the full workflow: distributed preprocessing, TFRecord output, partition and cluster experiments, the caching test, the speed-test grid, and figure generation.
 
-The distributed cells require a Google Cloud project, a storage bucket holding the dataset, and a Dataproc cluster. To run them, stage `tf_flowers` in a bucket, set the project and bucket variables, then run the notebook cells in order. Captured output logs and figures are retained in the notebook as evidence of the cloud runs.
+The distributed cells require a Google Cloud project, a storage bucket holding the dataset, and a Dataproc cluster. The notebook was developed in Google Colab, which orchestrates the pipeline and submits the distributed jobs to the Dataproc cluster. To run them, stage `tf_flowers` in a bucket, set the project and bucket variables, then run the notebook cells in order. Captured output logs and figures are retained in the notebook as evidence of the cloud runs.
 
 ## Reproducibility
 
