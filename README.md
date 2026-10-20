@@ -14,11 +14,11 @@ The analysis is run inside an 8 vCPU budget set by the coursework, using univers
 * **Size:** source dataset of 3,670 JPEG images across 5 classes; the recorded pipeline runs processed a fixed 2% sample.
 * **Processing target:** each image is decoded, resized and centre-cropped to 192x192x3, recompressed, and written into TFRecord shards. The class label is parsed from the directory name.
 
-The raw dataset is not included in this repository. All recorded pipeline runs, locally and on every cluster, processed a 2% random sample (64 to 67 images, seed 42), as the coursework specified. The separate speed tests read the public JPEGs and Google's pre-built public TFRecord files, and measure input-format read throughput rather than the throughput of the preprocessing pipeline.
+The raw dataset is not included in this repository. All recorded pipeline runs, locally and on every cluster, processed a 2% random sample (64 to 67 images, seed 42). The separate speed tests read the public JPEGs and Google's pre-built public TFRecord files, and measure input-format read throughput rather than the throughput of the preprocessing pipeline.
 
 ## Approach
 
-1. **Distributed preprocessing.** TensorFlow decode, resize/crop and recompress functions are rewritten to take a single argument so they run as `RDD.map` operations, fully replacing `tf.data.Dataset` with Spark RDDs as the brief requires.
+1. **Distributed preprocessing.** TensorFlow decode, resize/crop and recompress functions are rewritten to take a single argument so they run as `RDD.map` operations, fully replacing `tf.data.Dataset` with Spark RDDs.
 2. **TFRecord serialisation.** Each Spark partition is written as one TFRecord shard using `mapPartitionsWithIndex`, and every output filename is returned for traceability.
 3. **Partition tuning.** Partition count is raised from the default 2 to 16 to spread work across more tasks.
 4. **Cluster topology comparison.** The same job is run on 1-VM, 4-VM and 8-VM Dataproc clusters, all within the 8 vCPU cap, to compare horizontal and vertical scaling, using Dataproc CPU and network monitoring.
