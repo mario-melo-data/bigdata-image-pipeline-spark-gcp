@@ -36,7 +36,7 @@ The raw dataset is not included in this repository. All recorded pipeline runs, 
 | JPEG read throughput | 2.62 to 4.45 images/s, under 5 in every run |
 | Linear fit, TFRecord throughput against batch size multiplied by batch number | R-squared 0.97 |
 
-Caching is the dominant lever: materialising the RDD in memory removes redundant network reads and changes the pipeline from network-bound to memory-bound. The topology comparison examined CPU and network activity across 1-, 4- and 8-machine clusters within the 8 vCPU budget. The patterns are consistent with an I/O-intensive workload benefiting from parallel storage access; end-to-end times were not recorded for this comparison, and it does not establish a quantified scaling advantage. At the largest speed-test configuration, TFRecord reads were about 40 times faster than per-image JPEG fetches, consistent with each JPEG read paying a separate network round-trip. TFRecord read time stayed roughly constant (0.6 to 1.5 s) from 6 to 192 images, and throughput therefore rose almost in proportion to the images read; this is what the R-squared of 0.97 reflects.
+Caching is the dominant lever: materialising the RDD in memory removes redundant network reads and changes the pipeline from network-bound to memory-bound. The topology comparison examined CPU and network activity across 1-, 4- and 8-machine clusters within the 8 vCPU budget. The patterns are consistent with an I/O-intensive workload benefiting from parallel storage access; end-to-end times were not recorded for this comparison, and it does not establish a quantified scaling advantage. At the largest speed-test configuration, TFRecord reads were about 40 times faster than per-image JPEG fetches. The TFRecord files hold images already resized to 192x192, while the JPEG test reads the original images one file at a time; the gap therefore reflects both the access pattern (a separate network round-trip per JPEG) and the smaller stored images, not the file format alone. TFRecord read time stayed roughly constant (0.6 to 1.5 s) from 6 to 192 images, and throughput therefore rose almost in proportion to the images read; this is what the R-squared of 0.97 reflects.
 
 ## Tech stack
 
@@ -45,6 +45,7 @@ Python, PySpark (RDD API), TensorFlow 2.4.0, Google Cloud Dataproc, Google Cloud
 ## Files
 
 * `bigdata-image-pipeline-spark-gcp.ipynb` runs the full workflow: distributed preprocessing, TFRecord output, partition and cluster experiments, the caching test, the speed-test grid, and figure generation.
+* The Google Cloud Metrics Explorer screenshots referred to in the notebook formed part of the written coursework report and are not included in this repository.
 
 The notebook was developed in Google Colab, which orchestrates the pipeline and submits the distributed jobs to the Dataproc clusters. Reproducing the cloud experiments requires a Google Cloud project, Dataproc access and a Cloud Storage bucket for outputs. The project and bucket names are written into several cells and must be replaced throughout for a new environment. Input images are read from Google's public Cloud Storage bucket. Captured output logs and figures are retained in the notebook as evidence of the cloud runs.
 
