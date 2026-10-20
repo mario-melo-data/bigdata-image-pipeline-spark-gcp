@@ -30,13 +30,13 @@ The raw dataset is not included in this repository. All recorded pipeline runs, 
 
 | Experiment | Result |
 |---|---|
-| RDD caching | 31.09s without cache, 1.04s with cache (29.89x speedup) |
+| RDD caching (two repeated actions) | 31.09s uncached, then 1.04s cached; the uncached run also included Spark and TensorFlow start-up, and the gap overstates the effect of caching alone |
 | Partition tuning (2 to 16 partitions, 2% sample) | 23.8s to 23.2s (1.03x, overhead-bound) |
 | TFRecord read throughput | 6.6 to 191 images/s; 181 to 191 at the largest configuration (batch size 16, 12 batches) |
 | JPEG read throughput | 2.62 to 4.45 images/s, under 5 in every run |
 | Linear fit, TFRecord throughput against batch size multiplied by batch number | R-squared 0.97 |
 
-Caching is the dominant lever: materialising the RDD in memory removes redundant network reads and changes the pipeline from network-bound to memory-bound. The topology comparison examined CPU and network activity across 1-, 4- and 8-machine clusters within the 8 vCPU budget. The patterns are consistent with an I/O-intensive workload benefiting from parallel storage access; end-to-end times were not recorded for this comparison, and it does not establish a quantified scaling advantage. At the largest speed-test configuration, TFRecord reads were about 40 times faster than per-image JPEG fetches. The TFRecord files hold images already resized to 192x192, while the JPEG test reads the original images one file at a time; the gap therefore reflects both the access pattern (a separate network round-trip per JPEG) and the smaller stored images, not the file format alone. TFRecord read time stayed roughly constant (0.6 to 1.5 s) from 6 to 192 images, and throughput therefore rose almost in proportion to the images read; this is what the R-squared of 0.97 reflects.
+Caching removes recomputation and repeated network reads when an RDD feeds several actions. The recorded comparison is confounded: the uncached test ran first on a newly started SparkContext, and with two identical actions caching can save at most about half the work; most of the 31.09 s therefore reflects start-up cost. The topology comparison examined CPU and network activity across 1-, 4- and 8-machine clusters within the 8 vCPU budget. The patterns are consistent with an I/O-intensive workload benefiting from parallel storage access; end-to-end times were not recorded for this comparison, and it does not establish a quantified scaling advantage. At the largest speed-test configuration, TFRecord reads were about 40 times faster than per-image JPEG fetches. The TFRecord files hold images already resized to 192x192, while the JPEG test reads the original images one file at a time; the gap therefore reflects both the access pattern (a separate network round-trip per JPEG) and the smaller stored images, not the file format alone. TFRecord read time stayed roughly constant (0.6 to 1.5 s) from 6 to 192 images, and throughput therefore rose almost in proportion to the images read; this is what the R-squared of 0.97 reflects.
 
 ## Tech stack
 
