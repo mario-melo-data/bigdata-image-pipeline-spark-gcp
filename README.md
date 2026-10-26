@@ -22,7 +22,7 @@ The raw dataset is not included in this repository. All recorded pipeline runs, 
 2. **TFRecord serialisation.** Each Spark partition is written as one TFRecord shard using `mapPartitionsWithIndex`, and every output filename is returned for traceability.
 3. **Partition tuning.** Partition count is raised from the default 2 to 16 to spread work across more tasks.
 4. **Cluster topology comparison.** The same job is run on 1-VM, 4-VM and 8-VM Dataproc clusters, all within the 8 vCPU cap, to compare horizontal and vertical scaling, using Dataproc CPU and network monitoring.
-5. **RDD caching.** `cache()` is placed on the timing RDD so repeated actions are served from memory rather than re-reading from GCS.
+5. **RDD caching.** A separate demonstration compares two repeated actions with and without RDD caching. The uncached measurement also includes Spark and TensorFlow start-up overhead, and the recorded timing difference cannot therefore be attributed to caching alone. The main Dataproc speed-test job does not cache `results_rdd`.
 6. **Speed test.** A grid of 32 parameter combinations is run three times each (96 measurements), comparing per-image JPEG fetches against pre-serialised TFRecord reads, with linear regression fitted to each.
 7. **Theoretical discussion.** The accompanying written report discusses the results against CherryPick (Bayesian configuration search), the CAP theorem, and batch, stream and online processing scenarios.
 
